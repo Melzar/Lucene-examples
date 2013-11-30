@@ -14,7 +14,6 @@
     var app = angular.module("LuceneTest", ['ui.bootstrap'])
 
     app.controller("TestController", function($scope, $http, limitToFilter){
-
         $scope.searchIndex = function(value)
         {
            $scope.responsestatus = "in progress...";
