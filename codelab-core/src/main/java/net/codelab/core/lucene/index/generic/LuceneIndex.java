@@ -59,7 +59,7 @@ public class LuceneIndex <T>{
     }
 
     public void addItem(T item) throws IOException {
-        Collections.singletonList(item);
+        addItems(Collections.singletonList(item));
     }
 
     public void addItems(List<T> list) throws IOException {
