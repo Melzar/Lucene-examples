@@ -1,7 +1,7 @@
 package net.codelab.ui.rest.index;
 
 import net.codelab.core.entity.dto.Course;
-import net.codelab.core.lucene.index.ResultsDTO;
+import net.codelab.core.entity.dto.ResultsDTO;
 import net.codelab.core.service.index.CourseIndexService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.List;
+import java.io.IOException;
 
 
 /**
@@ -35,7 +35,13 @@ public class CourseRestIndex {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response getCourseData(@QueryParam("query") String query)
     {
-        ResultsDTO<Course> result = courseIndexService.getCourseIndexData(query);
+        ResultsDTO<Course> result = null;
+        try {
+            result = courseIndexService.getCourseByTitle(query);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(result).build();
+        }
         return Response.status(Response.Status.OK).entity(result).build();
     }
 
@@ -44,7 +50,12 @@ public class CourseRestIndex {
     @Consumes(MediaType.TEXT_PLAIN)
     public  Response createIndex()
     {
-        courseIndexService.reciveCourseData();
+        try {
+            courseIndexService.reindex();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
         return Response.status(Response.Status.OK).build();
     }
 }
