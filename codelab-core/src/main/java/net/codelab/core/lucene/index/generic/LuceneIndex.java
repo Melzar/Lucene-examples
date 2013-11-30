@@ -59,20 +59,7 @@ public class LuceneIndex <T>{
     }
 
     public void addItem(T item) throws IOException {
-        try(IndexWriter indexWriter = indexIOProvider.initializeWriter(analyzerProvider)) {
-            try
-            {
-                indexWriter.addDocument(mappingProvider.convertItemToDocument(item));
-                indexWriter.forceMerge(256);
-                indexWriter.commit();
-            } catch (IOException e) {
-                indexWriter.rollback();
-                throw e;
-            }
-        } finally {
-            indexIOProvider.terminateWriter();
-        }
-        searcherManager.maybeRefresh();
+        Collections.singletonList(item);
     }
 
     public void addItems(List<T> list) throws IOException {
@@ -93,20 +80,7 @@ public class LuceneIndex <T>{
     }
 
     public void updateItem(T item) throws IOException {
-        try(IndexWriter indexWriter = indexIOProvider.initializeWriter(analyzerProvider)) {
-            try
-            {
-                indexWriter.updateDocument(mappingProvider.getIdentifier(item), mappingProvider.convertItemToDocument(item));
-                indexWriter.forceMerge(256);
-                indexWriter.commit();
-            } catch (IOException e) {
-                indexWriter.rollback();
-                throw e;
-            }
-        } finally {
-            indexIOProvider.terminateWriter();
-        }
-        searcherManager.maybeRefresh();
+       updateItems(Collections.singletonList(item));
     }
 
     public void updateItems(List<T> list) throws IOException {
