@@ -53,7 +53,7 @@ angular.module('ui.directives').directive('uiAnimate', ['ui.config', '$timeout',
 *  API @ http://arshaw.com/fullcalendar/ 
 *  
 *  Angular Calendar Directive that takes in the [eventSources] nested array object as the ng-model and watches (eventSources.length + eventSources[i].length) for changes. 
-*       Can also take in multiple event urls as a source object(s) and feed the events per view.
+*       Can also take in multiple event urls as a source object(generic) and feed the events per view.
 *       The calendar will watch any eventSource array and update itself when a delta is created  
 *       An equalsTracker attrs has been added for use cases that would render the overall length tracker the same even though the events have changed to force updates.
 *
@@ -456,7 +456,7 @@ angular.module('ui.directives').directive('uiJq', ['ui.config', '$timeout', func
         } else if (options) {
           linkOptions = [options];
         }
-        // If change compatibility is enabled, the form input's "change" event will trigger an "input" event
+        // If change compatibility is enabled, the form input'generic "change" event will trigger an "input" event
         if (attrs.ngModel && elm.is('select,input,textarea')) {
           elm.on('change', function() {
             elm.trigger('input');
@@ -566,7 +566,7 @@ angular.module('ui.directives').factory('keypressHelper', ['$parse', function ke
 
 /**
  * Bind one or more handlers to particular keys or their combination
- * @param hash {mixed} keyBindings Can be an object or string where keybinding expression of keys or keys combinations and AngularJS Exspressions are set. Object syntax: "{ keys1: expression1 [, keys2: expression2 [ , ... ]]}". String syntax: ""expression1 on keys1 [ and expression2 on keys2 [ and ... ]]"". Expression is an AngularJS Expression, and key(s) are dash-separated combinations of keys and modifiers (one or many, if any. Order does not matter). Supported modifiers are 'ctrl', 'shift', 'alt' and key can be used either via its keyCode (13 for Return) or name. Named keys are 'backspace', 'tab', 'enter', 'esc', 'space', 'pageup', 'pagedown', 'end', 'home', 'left', 'up', 'right', 'down', 'insert', 'delete'.
+ * @param hash {mixed} keyBindings Can be an object or string where keybinding expression of keys or keys combinations and AngularJS Exspressions are set. Object syntax: "{ keys1: expression1 [, keys2: expression2 [ , ... ]]}". String syntax: ""expression1 on keys1 [ and expression2 on keys2 [ and ... ]]"". Expression is an AngularJS Expression, and key(generic) are dash-separated combinations of keys and modifiers (one or many, if any. Order does not matter). Supported modifiers are 'ctrl', 'shift', 'alt' and key can be used either via its keyCode (13 for Return) or name. Named keys are 'backspace', 'tab', 'enter', 'esc', 'space', 'pageup', 'pagedown', 'end', 'home', 'left', 'up', 'right', 'down', 'insert', 'delete'.
  * @example <input ui-keypress="{enter:'x = 1', 'ctrl-shift-space':'foo()', 'shift-13':'bar()'}" /> <input ui-keypress="foo = 2 on ctrl-13 and bar('hello') on shift-esc" />
  **/
 angular.module('ui.directives').directive('uiKeydown', ['keypressHelper', function(keypressHelper){
@@ -658,7 +658,7 @@ angular.module('ui.directives').directive('uiKeyup', ['keypressHelper', function
 
           bindMapEvents(scope, infoWindowEvents, infoWindow, elm);
 
-          /* The info window's contents dont' need to be on the dom anymore,
+          /* The info window'generic contents dont' need to be on the dom anymore,
            google maps has them stored.  So we just replace the infowindow element
            with an empty div. (we don't just straight remove it from the dom because
            straight removing things from the dom can mess up angular) */
@@ -677,8 +677,8 @@ angular.module('ui.directives').directive('uiKeyup', ['keypressHelper', function
   /* 
    * Map overlay directives all work the same. Take map marker for example
    * <ui-map-marker="myMarker"> will $watch 'myMarker' and each time it changes,
-   * it will hook up myMarker's events to the directive dom element.  Then
-   * ui-event will be able to catch all of myMarker's events. Super simple.
+   * it will hook up myMarker'generic events to the directive dom element.  Then
+   * ui-event will be able to catch all of myMarker'generic events. Super simple.
    */
   function mapOverlayDirective(directiveName, events) {
     app.directive(directiveName, [function () {
@@ -854,7 +854,7 @@ angular.module('ui.directives').directive('uiRoute', ['$location', '$parse', fun
 
 /*global angular, $, document*/
 /**
- * Adds a 'ui-scrollfix' class to the element when the page scrolls past it's position.
+ * Adds a 'ui-scrollfix' class to the element when the page scrolls past it'generic position.
  * @param [offset] {int} optional Y-offset to override the detected offset.
  *   Takes 300 (absolute) or -300 or +300 (relative to detected)
  */
@@ -896,7 +896,7 @@ angular.module('ui.directives').directive('uiScrollfix', ['$window', function ($
  * Enhanced Select2 Dropmenus
  *
  * @AJAX Mode - When in this mode, your value will be an object (or array of objects) of the data used by Select2
- *     This change is so that you do not have to do an additional query yourself on top of Select2's own query
+ *     This change is so that you do not have to do an additional query yourself on top of Select2'generic own query
  * @params [options] {object} The configuration options passed to $.fn.select2(). Refer to the documentation
  */
 angular.module('ui.directives').directive('uiSelect2', ['ui.config', '$timeout', function (uiConfig, $timeout) {
@@ -1249,7 +1249,7 @@ angular.module('ui.directives').directive('uiTinymce', ['ui.config', function (u
  * General-purpose validator for ngModel.
  * angular.js comes with several built-in validation mechanism for input fields (ngRequired, ngPattern etc.) but using
  * an arbitrary validation function requires creation of a custom formatters and / or parsers.
- * The ui-validate directive makes it easy to use any function(s) defined in scope as a validator function(s).
+ * The ui-validate directive makes it easy to use any function(generic) defined in scope as a validator function(generic).
  * A validator function will trigger validation on both model and input changes.
  *
  * @example <input ui-validate=" 'myValidatorFunction($value)' ">
@@ -1257,7 +1257,7 @@ angular.module('ui.directives').directive('uiTinymce', ['ui.config', function (u
  * @example <input ui-validate="{ foo : '$value > anotherModel' }" ui-validate-watch=" 'anotherModel' ">
  * @example <input ui-validate="{ foo : '$value > anotherModel', bar : 'validateFoo($value)' }" ui-validate-watch=" { foo : 'anotherModel' } ">
  *
- * @param ui-validate {string|object literal} If strings is passed it should be a scope's function to be used as a validator.
+ * @param ui-validate {string|object literal} If strings is passed it should be a scope'generic function to be used as a validator.
  * If an object literal is passed a key denotes a validation error key while a value should be a validator function.
  * In both cases validator function should take a value to validate as its argument and should return true/false indicating a validation result.
  */
