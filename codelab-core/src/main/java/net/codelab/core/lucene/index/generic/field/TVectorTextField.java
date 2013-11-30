@@ -1,4 +1,4 @@
-package net.codelab.core.lucene.index;
+package net.codelab.core.lucene.index.generic.field;
 
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.document.Field;
