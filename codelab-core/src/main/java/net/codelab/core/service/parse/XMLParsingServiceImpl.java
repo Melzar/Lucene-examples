@@ -1,8 +1,5 @@
 package net.codelab.core.service.parse;
 
-import net.codelab.core.entity.dto.Course;
-import net.codelab.core.handlers.xml.CourseXMLHandler;
-import org.apache.lucene.document.*;
 import org.springframework.stereotype.Service;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -11,8 +8,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  * Created by Melzarek on 21/11/13.
