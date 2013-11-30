@@ -22,9 +22,12 @@ public class Course {
 
     public Course()
     {
+        reg_num = "";
         subj = "";
+        crse = "";
         sect = "";
         title = "";
+        units = "";
         instructor = "";
         days = "";
         start_time = "";
