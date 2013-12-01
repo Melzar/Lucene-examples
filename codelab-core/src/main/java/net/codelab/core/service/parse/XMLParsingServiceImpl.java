@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -16,7 +17,7 @@ import java.io.IOException;
 @Service
 public class XMLParsingServiceImpl implements XMLParsingService {
 
-
+    //TODO secure procesing final
 
     public XMLParsingServiceImpl()
     {
@@ -27,6 +28,7 @@ public class XMLParsingServiceImpl implements XMLParsingService {
     public <T extends DefaultHandler> T parseXmlFromURL(String URL, T handler) {
         SAXParserFactory parserFactory = SAXParserFactory.newInstance();
         try {
+            parserFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, false);
             SAXParser parser = parserFactory.newSAXParser();
             parser.parse(URL, handler);
             return handler;
