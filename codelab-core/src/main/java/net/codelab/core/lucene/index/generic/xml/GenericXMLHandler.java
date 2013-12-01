@@ -1,15 +1,13 @@
-package net.codelab.core.handlers.xml;
+package net.codelab.core.lucene.index.generic.xml;
 
-import net.codelab.core.entity.dto.Course;
+import net.codelab.core.lucene.index.generic.LuceneIndex;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by Melzarek on 29/11/13.
@@ -26,19 +24,24 @@ import java.util.Map;
  *
  * Even if this implementation uses reflection it is about 20 - 40 % faster than "standard" implementation using
  * many comparisons and booleans.
+ *
+ *
+ * 1.12.2013 - add support for multivalued fields, your multivalued field has to be instanced as Collections object
+ * - also add support for dirty sources (if you have other "xml" objects than you predict)
+ *
  * @param <T>
  */
 public class GenericXMLHandler<T> extends DefaultHandler {
 
     private Class<T> clazz;
     private T classobject ;
-    private List<T> classobjects;
     private Map<String,Boolean> classfields;
+    private LuceneIndex<T> index;
 
-    public GenericXMLHandler(Class<T> clazz) {
+    public GenericXMLHandler(Class<T> clazz, LuceneIndex<T> index) {
         this.clazz = clazz;
         this.classfields = new HashMap<>();
-        this.classobjects = new LinkedList<>();
+        this.index = index;
         prepareFields();
     }
 
@@ -48,11 +51,6 @@ public class GenericXMLHandler<T> extends DefaultHandler {
         {
            classfields.put(f.getName(),false);
         }
-    }
-
-    public List<T> getParsedObjects()
-    {
-        return classobjects;
     }
 
     @Override
@@ -69,7 +67,7 @@ public class GenericXMLHandler<T> extends DefaultHandler {
                 throw new SAXException("Failed to instantiate generic type", e);
             }
         }
-        else if(classfields.keySet().contains(qName))
+        else if(classfields.keySet().contains(qName) && classobject != null)
         {
             classfields.put(qName,true);
         }
@@ -78,7 +76,12 @@ public class GenericXMLHandler<T> extends DefaultHandler {
     @Override
     public void endElement(String uri, String localName, String qName) throws SAXException {
         if (qName.equalsIgnoreCase(clazz.getSimpleName())) {
-            classobjects.add(classobject);
+            try {
+                index.addWithoutCommit(classobject);
+            } catch (IOException e) {
+                throw new SAXException("Failed to add generic object to index", e);
+            }
+            classobject = null;
         }
     }
 
@@ -92,13 +95,20 @@ public class GenericXMLHandler<T> extends DefaultHandler {
                 try {
                     Field field = clazz.getDeclaredField(key);
                     field.setAccessible(true);
-                    field.set(classobject, new String(ch, start, length));
+                    if(field.getType() == Collection.class)
+                    {
+                       Collections.addAll((Collection<String>) field.get(classobject),new String(ch, start, length));
+                    }
+                    else
+                    {
+                        field.set(classobject, new String(ch, start, length));
+                    }
                     classfields.put(key, false);
                     break;
                 } catch (IllegalAccessException e) {
-                    e.printStackTrace();
+                    throw new SAXException("Failed to access generic field", e);
                 } catch (NoSuchFieldException e) {
-                    e.printStackTrace();
+                    throw new SAXException("Failed to find generic method", e);
                 }
             }
         }
