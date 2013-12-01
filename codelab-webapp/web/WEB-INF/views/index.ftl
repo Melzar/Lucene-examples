@@ -40,10 +40,39 @@
         }
     })
 
+    app.controller("InproceedingsController", function($scope, $http, limitToFilter){
+
+        $scope.searchIndex = function(value)
+        {
+            $scope.responsestatus = "in progress...";
+            return $http.get("<@spring.url '/rest/index/inproceedings/search'/>" + "?query=" + value).then(function(response){
+                $scope.responsestatus = "success";
+                $scope.responsedata = response.data;
+                console.log(response);
+                return limitToFilter(response.data.results, 10)
+            })
+        }
+
+        $scope.reindex= function()
+        {
+            $scope.responsestatus = "in progress...";
+            $http({
+                url: "<@spring.url '/rest/index/inproceedings/createindex'/>",
+                method: "POST",
+                headers : {'Content-Type': 'application/json'}
+            }).success(function(datares, status, headers, cfg){
+                        $scope.responsestatus = "success";
+                    }).error(function(datares, status, headers, cfg){
+                        $scope.responsestatus = "error";
+                    })
+        }
+
+    })
+
 </script>
 <div class="container">
     <div class="row">
-            <div clas="col-md-12" ng-controller="TestController">
+            <div class="col-md-12" ng-controller="TestController">
                     <div class="row">
                         <h1>Lucene example</h1>
                         <div class="col-md-6">
@@ -59,6 +88,24 @@
                            Searchtime: {{responsedata.searchtime}} ms
                         </div>
                     </div>
+            </div>
+    </div>
+    <div class="row">
+            <div class="col-md-12" ng-controller="InproceedingsController">
+                <div class="row">
+                    <div class="col-md-6">
+                        <pre>Model: {{inproceedings| json}}</pre>
+                        <input type="text" class="form-control input-lg" typeahead-wait-ms="500" ng-model="inproceedings" typeahead="inproceedings as inproceedings.title for inproceedings in searchIndex($viewValue)" placeholder="enter query"  />
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-default" type="button" ng-click="reindex()">create index</button>
+                    </div>
+                    <div class="col-md-3" ng-if="responsedata">
+                        Response status: {{responsestatus}} <br/>
+                        Totalhits: {{responsedata.totalhits}} <br/>
+                        Searchtime: {{responsedata.searchtime}} ms
+                    </div>
+                </div>
             </div>
     </div>
 </div>
