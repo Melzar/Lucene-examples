@@ -37,9 +37,23 @@ public class IndexIOProvider {
         return writer = new IndexWriter(directory,indexWriterConfig);
     }
 
-    public void terminateWriter() {
-            indexWriterConfig = null;
-            writer = null;
+    public void terminateWriter() throws IOException {
+        writer.close();
+        indexWriterConfig = null;
+        writer = null;
+    }
+
+    public void saveChanges() throws IOException {
+        writer.forceMerge(256);
+        writer.commit();
+    }
+
+    public IndexWriter getWriter() {
+        return writer;
+    }
+
+    public void setWriter(IndexWriter writer) {
+        this.writer = writer;
     }
 
     public IndexReader getReader() {
