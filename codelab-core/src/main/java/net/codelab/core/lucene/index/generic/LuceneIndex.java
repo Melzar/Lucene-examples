@@ -33,7 +33,10 @@ public class LuceneIndex <T>{
 
     private IndexDataProvider indexDataProvider;
 
-   // private SuggestingProvider suggestingProvider;
+    //private SuggestingProvider suggestingProvider;
+
+    //TODO Add log implementation to places where exceptions are being catched
+    //TODO Add concurency writers for indexing
 
     public LuceneIndex(IndexIOProvider indexIOProvider, IndexDataProvider indexDataProvider, MappingProvider mappingProvider,
                        AnalyzerProvider analyzerProvider, SearchProvider searchProvider) throws IOException {
@@ -46,16 +49,38 @@ public class LuceneIndex <T>{
     }
 
     public ResultsDTO<T> searchItems(Query query, Filter filter, int hitsnum) throws IOException {
-         ResultsDTO<T> results = new ResultsDTO<>();
-         IndexSearcher indexSearcher = searcherManager.acquire();
-         ResultsDTO<Document> rawResults = searchProvider.performSearch(indexSearcher, null, query, hitsnum);
-         searcherManager.release(indexSearcher);
-         results.setSearchtime(rawResults.getSearchtime());
-         results.setTotalhits(rawResults.getTotalhits());
-         results.setHiglights(rawResults.getHiglights());
-         results.setSuggestions(rawResults.getSuggestions());
-         results.setResults(mappingProvider.convertDocumentsToItems(rawResults.getResults()));
-         return results;
+        ResultsDTO<T> results = new ResultsDTO<>();
+        IndexSearcher indexSearcher = searcherManager.acquire();
+        ResultsDTO<Document> rawResults = searchProvider.performSearch(indexSearcher, null, query, hitsnum);
+        searcherManager.release(indexSearcher);
+        results.setSearchtime(rawResults.getSearchtime());
+        results.setTotalhits(rawResults.getTotalhits());
+        results.setHiglights(rawResults.getHiglights());
+        results.setSuggestions(rawResults.getSuggestions());
+        results.setResults(mappingProvider.convertDocumentsToItems(rawResults.getResults()));
+        return results;
+    }
+
+    public void initializeFetchingDirectlyToIndex() throws IOException {
+        indexIOProvider.initializeWriter(analyzerProvider).deleteAll();
+    }
+
+    public void terminateFetchingDirectlyToIndex() throws IOException {
+        indexIOProvider.saveChanges();
+        indexIOProvider.terminateWriter();
+        searcherManager.maybeRefresh();
+    }
+
+    public void addWithoutCommit(T item) throws IOException {
+        IndexWriter writer = indexIOProvider.getWriter();
+            try
+            {
+                writer.addDocument(mappingProvider.convertItemToDocument(item));
+            }catch(IOException e)
+            {
+                writer.rollback();
+                throw e;
+            }
     }
 
     public void addItem(T item) throws IOException {
@@ -67,8 +92,7 @@ public class LuceneIndex <T>{
           try
           {
             indexWriter.addDocuments(mappingProvider.convertItemsToDocument(list));
-            indexWriter.forceMerge(256);
-            indexWriter.commit();
+            indexIOProvider.saveChanges();
           } catch (IOException e) {
             indexWriter.rollback();
             throw e;
@@ -91,8 +115,7 @@ public class LuceneIndex <T>{
                 {
                     indexWriter.updateDocument(mappingProvider.getIdentifier(item), mappingProvider.convertItemToDocument(item));
                 }
-                indexWriter.forceMerge(256);
-                indexWriter.commit();
+                indexIOProvider.saveChanges();
             } catch (IOException e) {
                 indexWriter.rollback();
                 throw e;
@@ -115,26 +138,7 @@ public class LuceneIndex <T>{
                 {
                     indexWriter.deleteDocuments(mappingProvider.getIdentifier(item));
                 }
-                indexWriter.forceMerge(256);
-                indexWriter.commit();
-            } catch (IOException e) {
-                indexWriter.rollback();
-                throw e;
-            }
-        } finally {
-            indexIOProvider.terminateWriter();
-        }
-        searcherManager.maybeRefresh();
-    }
-
-    public void reindex() throws IOException {
-        try(IndexWriter indexWriter = indexIOProvider.initializeWriter(analyzerProvider)) {
-            try
-            {
-                indexWriter.deleteAll();
-                indexWriter.addDocuments(mappingProvider.convertItemsToDocument(indexDataProvider.fetchAndParseXMLData()));
-                indexWriter.forceMerge(256);
-                indexWriter.commit();
+                indexIOProvider.saveChanges();
             } catch (IOException e) {
                 indexWriter.rollback();
                 throw e;
