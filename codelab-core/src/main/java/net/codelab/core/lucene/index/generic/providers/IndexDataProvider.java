@@ -1,12 +1,13 @@
 package net.codelab.core.lucene.index.generic.providers;
 
+import java.io.IOException;
 import java.util.Collection;
 
 /**
  * Created by Melzarek on 29/11/13.
  */
-public interface IndexDataProvider<T> {
+public interface IndexDataProvider {
 
-    public Collection<T> fetchAndParseXMLData();
+    public void fetchAndParseXMLData() throws IOException;
 
 }
