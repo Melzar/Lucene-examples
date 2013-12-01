@@ -28,10 +28,6 @@ public class CourseMappingProviderImpl implements CourseMappingProvider {
         document.add(new StringField("crse", item.getCrse(), Field.Store.YES));
         document.add(new StringField("sect", item.getSect(), Field.Store.YES));
         document.add(new TVectorTextField("title", item.getTitle(), TVectorTextField.TEXT_TYPE));
-        if(item.getUnits() == null)
-        {
-            System.out.println(item.getUnits());
-        }
         document.add(new StringField("units", item.getUnits(), Field.Store.YES));
         document.add(new TextField("instructor", item.getInstructor(), Field.Store.YES));
         document.add(new StringField("days",item.getDays(),Field.Store.YES));
