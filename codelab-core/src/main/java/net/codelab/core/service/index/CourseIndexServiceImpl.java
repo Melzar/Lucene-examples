@@ -1,14 +1,13 @@
 package net.codelab.core.service.index;
 
 import net.codelab.core.entity.dto.Course;
+import net.codelab.core.entity.dto.Inproceedings;
 import net.codelab.core.entity.dto.ResultsDTO;
-import net.codelab.core.handlers.xml.GenericXMLHandler;
-import net.codelab.core.lucene.factory.LuceneIndexFactory;
+import net.codelab.core.lucene.index.generic.xml.GenericXMLHandler;
 import net.codelab.core.lucene.factory.LuceneIndexFactoryImpl;
 import net.codelab.core.lucene.index.generic.providers.AnalyzerProvider;
 import net.codelab.core.lucene.index.generic.providers.DirectoryProvider;
 import net.codelab.core.lucene.index.generic.providers.SearchProvider;
-import net.codelab.core.lucene.index.course.providers.CourseDataProvider;
 import net.codelab.core.lucene.index.course.providers.CourseMappingProvider;
 import net.codelab.core.lucene.index.generic.LuceneIndex;
 import net.codelab.core.service.parse.XMLParsingService;
@@ -26,14 +25,13 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.Collection;
 
 /**
  * Created by Melzarek on 21/11/13.
  */
 
 @Service
-public class CourseIndexServiceImpl implements CourseIndexService, CourseDataProvider {
+public class CourseIndexServiceImpl implements CourseIndexService {
 
     public final String INDEX_DIRECTORY = "index/courses";
 
@@ -70,13 +68,10 @@ public class CourseIndexServiceImpl implements CourseIndexService, CourseDataPro
     }
 
     @Override
-    public Collection<Course> fetchAndParseXMLData() {
-        return xmlParsingService.parseXmlFromURL(DATA_URL, new GenericXMLHandler(Course.class)).getParsedObjects();
-    }
-
-    @Override
-    public void reindex() throws IOException {
-        index.reindex();
+    public void fetchAndParseXMLData() throws IOException {
+        index.initializeFetchingDirectlyToIndex();
+        xmlParsingService.parseXmlFromURL(DATA_URL, new GenericXMLHandler(Course.class, index));
+        index.terminateFetchingDirectlyToIndex();
     }
 
     @Override
