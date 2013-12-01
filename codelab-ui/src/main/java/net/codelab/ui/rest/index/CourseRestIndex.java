@@ -51,7 +51,7 @@ public class CourseRestIndex {
     public  Response createIndex()
     {
         try {
-            courseIndexService.reindex();
+            courseIndexService.fetchAndParseXMLData();
         } catch (IOException e) {
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
