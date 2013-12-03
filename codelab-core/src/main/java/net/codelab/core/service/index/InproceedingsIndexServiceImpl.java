@@ -1,8 +1,10 @@
 package net.codelab.core.service.index;
 
+import net.codelab.core.entity.dto.Course;
 import net.codelab.core.entity.dto.Inproceedings;
 import net.codelab.core.entity.dto.ResultsDTO;
-import net.codelab.core.lucene.index.generic.xml.GenericXMLHandler;
+import net.codelab.core.handlers.GenericIndexXMLHandler;
+import net.codelab.core.handlers.GenericXMLHandler;
 import net.codelab.core.lucene.factory.LuceneIndexFactoryImpl;
 import net.codelab.core.lucene.index.generic.LuceneIndex;
 import net.codelab.core.lucene.index.generic.providers.AnalyzerProvider;
@@ -22,7 +24,6 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.Collection;
 
 /**
  * Created by Melzarek on 01/12/13.
@@ -64,10 +65,7 @@ public class InproceedingsIndexServiceImpl implements InproceedingsIndexService 
     @Override
     public void fetchAndParseXMLData() throws IOException {
         index.initializeFetchingDirectlyToIndex();
-        long start = System.currentTimeMillis();
-        parsingService.parseXmlFromURL(DATA_URL, new GenericXMLHandler(Inproceedings.class, index));
-        long end = System.currentTimeMillis();
-        System.out.println("Directly indexing time : " + (end-start) + " ms");
+        parsingService.parseXmlFromURL(DATA_URL, new GenericIndexXMLHandler(Inproceedings.class, index));
         index.terminateFetchingDirectlyToIndex();
     }
 

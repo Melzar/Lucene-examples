@@ -1,9 +1,9 @@
 package net.codelab.core.service.index;
 
 import net.codelab.core.entity.dto.Course;
-import net.codelab.core.entity.dto.Inproceedings;
 import net.codelab.core.entity.dto.ResultsDTO;
-import net.codelab.core.lucene.index.generic.xml.GenericXMLHandler;
+import net.codelab.core.handlers.GenericIndexXMLHandler;
+import net.codelab.core.handlers.GenericXMLHandler;
 import net.codelab.core.lucene.factory.LuceneIndexFactoryImpl;
 import net.codelab.core.lucene.index.generic.providers.AnalyzerProvider;
 import net.codelab.core.lucene.index.generic.providers.DirectoryProvider;
@@ -70,7 +70,7 @@ public class CourseIndexServiceImpl implements CourseIndexService {
     @Override
     public void fetchAndParseXMLData() throws IOException {
         index.initializeFetchingDirectlyToIndex();
-        xmlParsingService.parseXmlFromURL(DATA_URL, new GenericXMLHandler(Course.class, index));
+        xmlParsingService.parseXmlFromURL(DATA_URL, new GenericIndexXMLHandler(Course.class, index));
         index.terminateFetchingDirectlyToIndex();
     }
 
