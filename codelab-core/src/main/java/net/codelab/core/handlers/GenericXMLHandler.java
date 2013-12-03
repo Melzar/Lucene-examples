@@ -1,12 +1,12 @@
-package net.codelab.core.lucene.index.generic.xml;
+package net.codelab.core.handlers;
 
-import net.codelab.core.lucene.index.generic.LuceneIndex;
+import net.codelab.core.entity.dto.Course;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 /**
@@ -25,6 +25,9 @@ import java.util.*;
  * Even if this implementation uses reflection it is about 20 - 40 % faster than "standard" implementation using
  * many comparisons and booleans.
  *
+ * !IMPORTANT this implementation loads all chosen nodes to list and then returns it. It is memory consuming so this
+ * is rather soultion for smaller files or for system with enough memory. If you don't like this solution you should
+ * try child implementation "GenericIndexXmlHandler" which you can extend and adjust to your needs
  *
  * 1.12.2013 - add support for multivalued fields, your multivalued field has to be instanced as Collections object
  * - also add support for dirty sources (if you have other "xml" objects than you predict)
@@ -35,13 +38,13 @@ public class GenericXMLHandler<T> extends DefaultHandler {
 
     private Class<T> clazz;
     private T classobject ;
+    private List<T> classobjects;
     private Map<String,Boolean> classfields;
-    private LuceneIndex<T> index;
 
-    public GenericXMLHandler(Class<T> clazz, LuceneIndex<T> index) {
+    public GenericXMLHandler(Class<T> clazz) {
         this.clazz = clazz;
         this.classfields = new HashMap<>();
-        this.index = index;
+        this.classobjects = new LinkedList<>();
         prepareFields();
     }
 
@@ -52,6 +55,17 @@ public class GenericXMLHandler<T> extends DefaultHandler {
            classfields.put(f.getName(),false);
         }
     }
+
+    public List<T> getParsedObjects()
+    {
+        return classobjects;
+    }
+
+    protected Class<T> getClazz(){ return clazz ;}
+
+    protected T getParsedObject() { return classobject ;}
+
+    protected void setParsedObject (T object) { classobject = object ;}
 
     @Override
     public void startElement(String uri, String localName, String qName, Attributes attributes)
@@ -76,11 +90,7 @@ public class GenericXMLHandler<T> extends DefaultHandler {
     @Override
     public void endElement(String uri, String localName, String qName) throws SAXException {
         if (qName.equalsIgnoreCase(clazz.getSimpleName())) {
-            try {
-                index.addWithoutCommit(classobject);
-            } catch (IOException e) {
-                throw new SAXException("Failed to add generic object to index", e);
-            }
+            classobjects.add(classobject);
             classobject = null;
         }
     }
